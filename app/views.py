@@ -209,12 +209,12 @@ class ListPendingFriendRequests(APIView):
     def get(self, request):
         try:
             user = request.user
-            
+            print("request.user",request.user)
             if not user:
                 return JsonResponse({'error': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 
             pending_requests = FriendRequest.objects.filter(to_user=user, status='pending')
-            
+            print("pending_requests::",pending_requests)
             if not pending_requests.exists():
                 return JsonResponse({'message': 'No pending friend requests'}, status=status.HTTP_204_NO_CONTENT)
 

@@ -6,7 +6,7 @@ Social Media App Backend  - Accuknox Task
 
 1. Clone the repository 
     ```
-    git clone https://github.com/PankajJaisu/vance-tech-assignment.git
+    git clone https://github.com/PankajJaisu/Accuknox-task.git
     ```
 
 2. Move to Project Folder 
@@ -52,5 +52,5 @@ https://documenter.getpostman.com/view/26432004/2sAXjRV95A
 # Live Demo 
 
 ```
-Need to Add
+https://accuknox-task.onrender.com/
 ```

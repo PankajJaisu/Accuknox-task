@@ -5,6 +5,8 @@ from rest_framework import status
 from .models import *
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import *
+from rest_framework.pagination import PageNumberPagination
 
 class Signup(APIView):
     def post(self, request):
@@ -13,7 +15,6 @@ class Signup(APIView):
         last_name = request.data.get('last_name')
         password = request.data.get('password')
 
-        # Basic validation
         if not email or not first_name or not last_name or not password:
             return JsonResponse({'error': 'Email, name, and password are required'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -23,7 +24,7 @@ class Signup(APIView):
 
         User.objects.create_user(
             username=email,  
-            email=email,
+            email=email.lower(),
             password=password,
             first_name = first_name,
             last_name = last_name
@@ -41,7 +42,7 @@ class Login(APIView):
         if not email or not password:
             return JsonResponse({'error': 'Email and password are required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = authenticate(request, username=email, password=password)
+        user = authenticate(request, username=email.lower(), password=password)
         if user is None:
             return JsonResponse({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -60,5 +61,33 @@ class Login(APIView):
         }
 
         return JsonResponse(response_data, status=status.HTTP_200_OK)
+
+
+
+
+class SearchUser(APIView):
+    def get(self, request):
+        search_keyword = request.query_params.get('q', '')
+
+        if not search_keyword:
+            return JsonResponse({'error': 'Search keyword is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        users = User.objects.filter(
+            email__icontains=search_keyword
+        ) | User.objects.filter(
+            first_name__icontains=search_keyword
+        ) | User.objects.filter(
+            last_name__icontains=search_keyword
+        )
+
+        print("users::",users)
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        paginated_users = paginator.paginate_queryset(users, request)
+        print("users::",paginated_users)
+
+        serializer = UserSerializer(paginated_users, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
 
 
